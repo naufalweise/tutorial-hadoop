@@ -3,17 +3,14 @@
 # atur working directory 
 cd ~
 
-sudo apt-get update
+sudo apt-get -y update
 
 # install java
-sudo apt-get install default-jre
-sudo apt-get install openjdk-11-jre-headless
-sudo apt-get install openjdk-8-jre-headless
-sudo apt-get install openjdk-8-jdk
+sudo apt install -y openjdk-17-jdk
 
 # install ssh
-sudo apt-get install openssh-client openssh-server
-sudo apt-get install ssh pdsh
+sudo apt-get -y install openssh-client openssh-server
+sudo apt-get -y install ssh pdsh
 
 # konfigurasikan ssh
 ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
@@ -21,11 +18,17 @@ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 chmod 0600 ~/.ssh/authorized_keys
 
 # install hadoop
-wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
-tar -xvzf hadoop-3.3.6.tar.gz
+wget -c https://dlcdn.apache.org/hadoop/common/hadoop-3.4.2/hadoop-3.4.2.tar.gz
+tar -xvzf hadoop-3.4.2.tar.gz
+
+# hadoop data
+sudo mkdir -p /opt/hadoop_data/namenode
+sudo mkdir -p /opt/hadoop_data/datanode
+sudo chown -R $USER:$USER /opt/hadoop_data
+
 
 # konfigurasikan hadoop
-cd hadoop-3.3.6/etc/hadoop
+cd ~/hadoop-3.4.2/etc/hadoop
 cat << EOF > core-site.xml
 <configuration>
     <property>
@@ -42,7 +45,18 @@ cat << EOF > hdfs-site.xml
         <name>dfs.replication</name>
         <value>1</value>
     </property>
+
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>/opt/hadoop_data/namenode</value>
+    </property>
+
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>/opt/hadoop_data/datanode</value>
+    </property>
 </configuration>
+
 EOF
 
 
@@ -54,7 +68,7 @@ cat << EOF > mapred-site.xml
     </property>
     <property>
         <name>mapreduce.application.classpath</name>
-        <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
+        <value>\$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:\$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
     </property>
 </configuration>
 EOF
@@ -74,12 +88,23 @@ cat << EOF > yarn-site.xml
 EOF
 
 # Tambahkan enviromment variable ke .bashrc
+
 cat << EOF >> ~/.bashrc
-export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
-export HADOOP_HOME=~/hadoop-3.3.6
-export PATH=$PATH:$HADOOP_HOME/bin
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
+export HADOOP_HOME=~/hadoop-3.4.2
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
-export HADOOP_CLASSPATH=/usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar
+EOF
+
+
+
+# Reload bashrc
+source ~/.bashrc
+
+cat << EOF >> ~/.hadoop-env.sh
+export PDSH_RCMD_TYPE=ssh
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EOF
 
 # Inisiasi Hadoop Distributed File System (HDFS)
