@@ -91,10 +91,10 @@ EOF
 
 cat << EOF >> ~/.bashrc
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
+export HADOOP_CLASSPATH=\$JAVA_HOME/lib/tools.jar
 export HADOOP_HOME=~/hadoop-3.4.2
-export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
-export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export PATH=\$PATH:\$HADOOP_HOME/bin:\$HADOOP_HOME/sbin
+export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
 EOF
 
 
@@ -102,7 +102,8 @@ EOF
 # Reload bashrc
 source ~/.bashrc
 
-cat << EOF >> ~/.hadoop-env.sh
+#
+cat << EOF >> $HADOOP_CONF_DIR/hadoop-env.sh
 export PDSH_RCMD_TYPE=ssh
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EOF
