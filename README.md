@@ -27,6 +27,27 @@ ssh vboxuser@192.168.56.50
 5. Ceklis OpenSSH Client
 6. Klik Add
 
+
+### Menghidupkan Hadoop
+Hidupkan hadoop sehabis menyalakan VM.
+```
+start-all.sh
+```
+Cek status node yang berjalan
+```
+jps
+```
+Contoh output bila semuanya berjalan
+```
+vboxuser@bigdata-vm-2:~$ jps
+2643 SecondaryNameNode
+2869 ResourceManager
+2246 NameNode
+2394 DataNode
+3019 NodeManager
+3358 Jps
+```
+
 ## Hadoop
 
 ### Import Data Ke Hadoop
@@ -47,7 +68,7 @@ head 98-401-X2021012_English_CSV_data.csv
 
 - Masukkan file ke hdfs
 ```
-hadoop fs -mkdir /census2021/ada
+hadoop fs -mkdir -p /census2021/ada
 hadoop fs -put ./98-401-X2021012_English_CSV_data.csv /census2021/ada/ada.csv
 ```
 - [Info] Jalankan command berikut untuk mengecek file yang sudah dimasukkan ke hdfs.
