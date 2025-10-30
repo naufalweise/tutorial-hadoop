@@ -173,3 +173,73 @@ Note: Skip bagian ini bila menggunakan OVA virtualbox yang diberikan.
 
 ### Praktik Spark
 
+
+### Line Counter Spark
+
+line_counter.py
+
+```
+from pyspark.sql import SparkSession
+import sys
+
+# Definisikan jalur HDFS target untuk data sensus
+HDFS_PATH = "/census2021/ada/ada.csv"
+
+def count_lines(hdfs_path):
+    """
+    Menginisialisasi Sesi Spark, membaca file HDFS sebagai RDD teks, 
+    dan menghitung jumlah baris.
+    """
+    # 1. Buat SparkSession, gunakan nama aplikasi sederhana
+    spark = SparkSession.builder.appName("HDFSLineCounter").getOrCreate()
+
+    try:
+        print(f"Mencoba membaca file dari jalur HDFS: {hdfs_path}")
+
+        # 2. Baca file sebagai RDD teks (Resilient Distributed Dataset). 
+        # RDD efisien untuk penghitungan baris sederhana.
+        lines_rdd = spark.sparkContext.textFile(hdfs_path)
+
+        # 3. Hitung jumlah baris dalam RDD
+        line_count = lines_rdd.count()
+
+        print("\n" + "=" * 50)
+        print(f"| SUKSES: Total baris di {hdfs_path}: {line_count} |")
+        print("=" * 50 + "\n")
+
+    except Exception as e:
+        # Tangani pengecualian apa pun terkait koneksi HDFS atau akses file
+        print(f"Terjadi kesalahan saat mengakses file: {e}", file=sys.stderr)
+        sys.exit(1)
+    finally:
+        # 4. Hentikan SparkSession
+        spark.stop()
+        print("SparkSession telah dihentikan.")
+
+if __name__ == "__main__":
+    count_lines(HDFS_PATH)
+```
+
+Copy kode diatas ke file line counter. 
+
+Jalankan dengan perintah.
+```
+spark-submit \
+  --master yarn \
+  --deploy-mode client \
+  line_counter.py
+```
+
+Contoh Output
+```
+...
+25/10/29 19:35:30 INFO DAGScheduler: Job 0 finished: count at /home/debian/line-count-spark/line_counter.py:23, took 7203.775161 ms
+
+==================================================
+| SUKSES: Total baris di /census2021/ada/ada.csv: 14294224 |
+==================================================
+
+25/10/29 19:35:30 INFO SparkContext: SparkContext is stopping with exitCode 0 from stop at NativeMethodAccessorImpl.java:0.
+25/10/29 19:35:30 INFO SparkUI: Stopped Spark web UI at http://192.168.65.2:4040
+...
+```
