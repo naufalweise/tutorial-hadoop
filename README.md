@@ -176,6 +176,7 @@ Note: Skip bagian ini bila menggunakan OVA virtualbox yang diberikan.
 
 ### Line Counter Spark
 
+- Copy kode dibawah ke file:
 line_counter.py
 
 ```
@@ -220,9 +221,9 @@ if __name__ == "__main__":
     count_lines(HDFS_PATH)
 ```
 
-Copy kode diatas ke file line counter. 
 
-Jalankan dengan perintah.
+
+- Jalankan dengan perintah.
 ```
 spark-submit \
   --master yarn \
